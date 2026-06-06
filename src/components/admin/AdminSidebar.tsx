@@ -58,6 +58,16 @@ export default function AdminSidebar() {
       href: "/admin/live",
       icon: FaUserClock,
     },
+    {
+      name: "Maintenance",
+      href: "/admin/maintenance",
+      icon: FaClipboardList,
+    },
+    {
+      name: "Timeline",
+      href: "/admin/timeline",
+      icon: FaClipboardList,
+    },
   ];
 
   const handleLogout = async () => {

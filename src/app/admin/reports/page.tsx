@@ -10,6 +10,9 @@ export default function ReportsPage() {
   const [selectedEmployee, setSelectedEmployee] =
     useState("");
 
+  const [filter, setFilter] =
+    useState("today");
+
   const [report, setReport] =
     useState<any>(null);
 
@@ -19,38 +22,57 @@ export default function ReportsPage() {
 
   const loadEmployees =
     async () => {
-      const res =
-        await axios.get(
-          "/api/employees/list"
+      try {
+
+        const res =
+          await axios.get(
+            "/api/employees/list"
+          );
+
+        setEmployees(
+          res.data.employees
         );
 
-      setEmployees(
-        res.data.employees
-      );
+      } catch (error) {
+        console.error(error);
+      }
     };
 
   const generateReport =
     async () => {
 
       if (!selectedEmployee) {
+
         alert(
           "Select Employee"
         );
+
         return;
       }
 
-      const res =
-        await axios.post(
-          "/api/reports/employee",
-          {
-            employeeId:
-              selectedEmployee,
-          }
+      try {
+
+        const res =
+          await axios.post(
+            "/api/reports/employee",
+            {
+              employeeId:
+                selectedEmployee,
+
+              filter,
+            }
+          );
+
+        setReport(
+          res.data
         );
 
-      setReport(
-        res.data
-      );
+      } catch (error) {
+
+        console.error(
+          error
+        );
+      }
     };
 
   return (
@@ -66,7 +88,7 @@ export default function ReportsPage() {
           Generate Employee Report
         </h2>
 
-        <div className="flex gap-4">
+        <div className="flex flex-wrap gap-4">
 
           <select
             value={selectedEmployee}
@@ -97,6 +119,32 @@ export default function ReportsPage() {
               )
             )}
 
+          </select>
+
+          <select
+            value={filter}
+            onChange={(e) =>
+              setFilter(
+                e.target.value
+              )
+            }
+            className="border p-3 rounded text-black"
+          >
+            <option value="today">
+              Today
+            </option>
+
+            <option value="week">
+              This Week
+            </option>
+
+            <option value="month">
+              This Month
+            </option>
+
+            <option value="all">
+              All Time
+            </option>
           </select>
 
           <button
@@ -161,7 +209,7 @@ export default function ReportsPage() {
               Last Known Location
             </h3>
 
-            <p className="text-black">
+            <p className="text-black break-words">
               {
                 report.lastLocation?.address ||
                 "No Address Available"

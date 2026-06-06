@@ -19,12 +19,88 @@ export async function POST(
 
     const {
       employeeId,
+      filter,
     } = await req.json();
 
+    let query: any = {
+      employeeId,
+    };
+
+    const now = new Date();
+
+    if (filter === "today") {
+
+      const start =
+        new Date();
+
+      start.setHours(
+        0,
+        0,
+        0,
+        0
+      );
+
+      query.createdAt = {
+        $gte: start,
+      };
+
+    } else if (
+      filter === "week"
+    ) {
+
+      const start =
+        new Date();
+
+      start.setDate(
+        start.getDate() - 7
+      );
+
+      query.createdAt = {
+        $gte: start,
+      };
+
+    } else if (
+      filter === "month"
+    ) {
+
+      const start =
+        new Date();
+
+      start.setMonth(
+        start.getMonth() - 1
+      );
+
+      query.createdAt = {
+        $gte: start,
+      };
+
+    } else if (
+      filter === "all"
+    ) {
+
+      // No date filter
+
+    } else {
+
+      const start =
+        new Date();
+
+      start.setHours(
+        0,
+        0,
+        0,
+        0
+      );
+
+      query.createdAt = {
+        $gte: start,
+      };
+    }
+
     const logs =
-      await LocationLog.find({
-        employeeId,
-      }).sort({
+      await LocationLog.find(
+        query
+      ).sort({
         createdAt: 1,
       });
 
