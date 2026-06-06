@@ -16,6 +16,9 @@ export default function EmployeeDashboard() {
   const [location, setLocation] =
     useState("");
 
+  const [watchId, setWatchId] =
+    useState<number | null>(null);
+
   useEffect(() => {
     const user =
       localStorage.getItem(
@@ -69,35 +72,65 @@ export default function EmployeeDashboard() {
 
       setTracking(true);
 
-      navigator.geolocation.watchPosition(
-        async (
-          position
-        ) => {
+      const geoWatchId =
+        navigator.geolocation.watchPosition(
+          async (
+            position
+          ) => {
 
-          setLocation(
-            `${position.coords.latitude.toFixed(
-              5
-            )}, ${position.coords.longitude.toFixed(
-              5
-            )}`
-          );
+            const lat =
+              position.coords.latitude;
 
-          await axios.post(
-            "/api/location/update",
-            {
-              employeeId:
-                employee._id,
+            const lng =
+              position.coords.longitude;
 
-              latitude:
-                position.coords
-                  .latitude,
+            const accuracy =
+              position.coords.accuracy;
 
-              longitude:
-                position.coords
-                  .longitude,
+            setLocation(
+              `${lat.toFixed(
+                6
+              )}, ${lng.toFixed(
+                6
+              )}`
+            );
+
+            try {
+              await axios.post(
+                "/api/location/update",
+                {
+                  employeeId:
+                    employee._id,
+
+                  latitude:
+                    lat,
+
+                  longitude:
+                    lng,
+
+                  accuracy,
+                }
+              );
+            } catch (error) {
+              console.error(
+                error
+              );
             }
-          );
-        }
+          },
+          (error) => {
+            console.error(
+              error
+            );
+          },
+          {
+            enableHighAccuracy: true,
+            timeout: 15000,
+            maximumAge: 0,
+          }
+        );
+
+      setWatchId(
+        geoWatchId
       );
     };
 
@@ -114,6 +147,14 @@ export default function EmployeeDashboard() {
         }
       );
 
+      if (
+        watchId !== null
+      ) {
+        navigator.geolocation.clearWatch(
+          watchId
+        );
+      }
+
       localStorage.removeItem(
         "attendanceId"
       );
@@ -128,6 +169,15 @@ export default function EmployeeDashboard() {
     };
 
   const logout = () => {
+
+    if (
+      watchId !== null
+    ) {
+      navigator.geolocation.clearWatch(
+        watchId
+      );
+    }
+
     localStorage.removeItem(
       "employee"
     );

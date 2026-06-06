@@ -8,14 +8,18 @@ export default function LivePage() {
     useState<any[]>([]);
 
   const loadEmployees = async () => {
-    const res =
-      await axios.get(
-        "/api/admin/live"
-      );
+    try {
+      const res =
+        await axios.get(
+          "/api/admin/live"
+        );
 
-    setEmployees(
-      res.data.liveEmployees
-    );
+      setEmployees(
+        res.data.liveEmployees
+      );
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   useEffect(() => {
@@ -64,7 +68,7 @@ export default function LivePage() {
                 key={
                   item.employee._id
                 }
-                className="bg-white rounded-xl shadow-lg p-6"
+                className="bg-white rounded-xl shadow-lg p-6 border"
               >
 
                 <div className="flex justify-between items-center mb-4">
@@ -87,12 +91,12 @@ export default function LivePage() {
                   isOnline(
                     location.createdAt
                   ) ? (
-                    <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full font-bold">
-                      Online
+                    <span className="bg-green-100 text-green-700 px-4 py-2 rounded-full font-bold">
+                      ONLINE
                     </span>
                   ) : (
-                    <span className="bg-red-100 text-red-700 px-3 py-1 rounded-full font-bold">
-                      Offline
+                    <span className="bg-red-100 text-red-700 px-4 py-2 rounded-full font-bold">
+                      OFFLINE
                     </span>
                   )}
 
@@ -101,22 +105,60 @@ export default function LivePage() {
                 {location ? (
                   <>
 
-                    <p className="text-black mb-3">
-                      Last Updated:
-                      {" "}
-                      {new Date(
-                        location.createdAt
-                      ).toLocaleString()}
-                    </p>
+                    <div className="space-y-2 mb-4">
 
-                    <a
-                      href={`https://www.google.com/maps?q=${location.latitude},${location.longitude}`}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="inline-block bg-[#C8102E] text-white px-4 py-3 rounded-lg"
-                    >
-                      View on Google Maps
-                    </a>
+                      <p className="text-black">
+                        <strong>
+                          Latitude:
+                        </strong>{" "}
+                        {
+                          location.latitude
+                        }
+                      </p>
+
+                      <p className="text-black">
+                        <strong>
+                          Longitude:
+                        </strong>{" "}
+                        {
+                          location.longitude
+                        }
+                      </p>
+
+                      <p className="text-black">
+                        <strong>
+                          Accuracy:
+                        </strong>{" "}
+                        {
+                          location.accuracy ||
+                          "N/A"
+                        }{" "}
+                        meters
+                      </p>
+
+                      <p className="text-black">
+                        <strong>
+                          Updated:
+                        </strong>{" "}
+                        {new Date(
+                          location.createdAt
+                        ).toLocaleString()}
+                      </p>
+
+                    </div>
+
+                    <div className="flex gap-3">
+
+                      <a
+                        href={`https://www.google.com/maps?q=${location.latitude},${location.longitude}`}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="bg-[#C8102E] text-white px-4 py-3 rounded-lg font-semibold"
+                      >
+                        Open Google Maps
+                      </a>
+
+                    </div>
 
                   </>
                 ) : (

@@ -34,7 +34,6 @@ export async function GET() {
         calculateDistance(
           logs[i - 1].latitude,
           logs[i - 1].longitude,
-
           logs[i].latitude,
           logs[i].longitude
         );
@@ -45,7 +44,10 @@ export async function GET() {
 
     return NextResponse.json({
       success: true,
-      totalKm,
+      totalKm:
+        Number(
+          totalKm.toFixed(2)
+        ),
       totalHalts:
         halts.length,
       halts,

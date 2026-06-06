@@ -13,48 +13,73 @@ import {
 } from "react-leaflet";
 
 export default function TrackingMap() {
-  const [position, setPosition] =
-    useState<[number, number]>([
-      22.6156,
-      88.4120,
-    ]);
+  const [employees, setEmployees] =
+    useState<any[]>([]);
 
-  const loadLocation = async () => {
-    try {
-      const res = await axios.get(
-        "/api/location/latest"
-      );
+  const loadLocations =
+    async () => {
+      try {
+        const res =
+          await axios.get(
+            "/api/admin/live"
+          );
 
-      const loc =
-        res.data.latestLocation;
-
-      if (loc) {
-        setPosition([
-          loc.latitude,
-          loc.longitude,
-        ]);
+        setEmployees(
+          res.data.liveEmployees
+        );
+      } catch (error) {
+        console.error(error);
       }
-    } catch (err) {
-      console.error(err);
-    }
-  };
+    };
 
   useEffect(() => {
-    loadLocation();
+    loadLocations();
 
-    const interval = setInterval(
-      loadLocation,
-      10000
-    );
+    const interval =
+      setInterval(
+        loadLocations,
+        10000
+      );
 
     return () =>
       clearInterval(interval);
   }, []);
 
+  const defaultCenter: [
+    number,
+    number
+  ] = [
+    22.6156,
+    88.4120,
+  ];
+
+  const firstLocation =
+    employees.find(
+      (e) =>
+        e.latestLocation
+    );
+
+  const center =
+    firstLocation
+      ? [
+          firstLocation
+            .latestLocation
+            .latitude,
+          firstLocation
+            .latestLocation
+            .longitude,
+        ]
+      : defaultCenter;
+
   return (
     <MapContainer
-      center={position}
-      zoom={15}
+      center={
+        center as [
+          number,
+          number
+        ]
+      }
+      zoom={12}
       style={{
         height: "100%",
         width: "100%",
@@ -65,11 +90,75 @@ export default function TrackingMap() {
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
       />
 
-      <Marker position={position}>
-        <Popup>
-          Subrota Pal
-        </Popup>
-      </Marker>
+      {employees.map(
+        (item) => {
+
+          if (
+            !item.latestLocation
+          )
+            return null;
+
+          return (
+            <Marker
+              key={
+                item.employee._id
+              }
+              position={[
+                item
+                  .latestLocation
+                  .latitude,
+                item
+                  .latestLocation
+                  .longitude,
+              ]}
+            >
+              <Popup>
+
+                <div>
+
+                  <h3 className="font-bold">
+                    {
+                      item.employee
+                        .name
+                    }
+                  </h3>
+
+                  <p>
+                    {
+                      item.employee
+                        .email
+                    }
+                  </p>
+
+                  <p>
+                    Updated:
+                  </p>
+
+                  <p>
+                    {new Date(
+                      item
+                        .latestLocation
+                        .createdAt
+                    ).toLocaleString()}
+                  </p>
+
+                  <br />
+
+                  <a
+                    href={`https://www.google.com/maps?q=${item.latestLocation.latitude},${item.latestLocation.longitude}`}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    Open In Maps
+                  </a>
+
+                </div>
+
+              </Popup>
+            </Marker>
+          );
+        }
+      )}
     </MapContainer>
   );
 }

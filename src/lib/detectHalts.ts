@@ -1,6 +1,10 @@
+import { calculateDistance } from "./calculateDistance";
+
 export function detectHalts(logs: any[]) {
 
   const halts = [];
+
+  let haltStart = null;
 
   for (
     let i = 1;
@@ -8,36 +12,70 @@ export function detectHalts(logs: any[]) {
     i++
   ) {
 
-    const prev = logs[i - 1];
-    const curr = logs[i];
+    const prev =
+      logs[i - 1];
 
-    const latDiff =
-      Math.abs(
-        prev.latitude -
-          curr.latitude
-      );
+    const curr =
+      logs[i];
 
-    const lngDiff =
-      Math.abs(
-        prev.longitude -
-          curr.longitude
+    const distance =
+      calculateDistance(
+        prev.latitude,
+        prev.longitude,
+        curr.latitude,
+        curr.longitude
       );
 
     if (
-      latDiff < 0.0001 &&
-      lngDiff < 0.0001
+      distance < 0.05
     ) {
 
-      halts.push({
-        latitude:
-          curr.latitude,
+      if (!haltStart) {
+        haltStart = prev;
+      }
 
-        longitude:
-          curr.longitude,
+    } else {
 
-        time:
-          curr.timestamp,
-      });
+      if (haltStart) {
+
+        const haltDuration =
+          (
+            new Date(
+              prev.createdAt
+            ).getTime() -
+            new Date(
+              haltStart.createdAt
+            ).getTime()
+          ) /
+          (1000 * 60);
+
+        if (
+          haltDuration >= 10
+        ) {
+
+          halts.push({
+            latitude:
+              haltStart.latitude,
+
+            longitude:
+              haltStart.longitude,
+
+            startTime:
+              haltStart.createdAt,
+
+            endTime:
+              prev.createdAt,
+
+            duration:
+              Math.round(
+                haltDuration
+              ),
+          });
+        }
+
+        haltStart =
+          null;
+      }
     }
   }
 

@@ -5,6 +5,7 @@ const LocationLogSchema = new Schema(
     employeeId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
+      required: true,
     },
 
     latitude: {
@@ -15,6 +16,11 @@ const LocationLogSchema = new Schema(
     longitude: {
       type: Number,
       required: true,
+    },
+
+    accuracy: {
+      type: Number,
+      default: 0,
     },
 
     address: {
@@ -37,7 +43,9 @@ const LocationLogSchema = new Schema(
       default: Date.now,
     },
   },
-  { timestamps: true }
+  {
+    timestamps: true,
+  }
 );
 
 export default mongoose.models.LocationLog ||

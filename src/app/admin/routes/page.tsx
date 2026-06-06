@@ -12,9 +12,17 @@ const RouteMap = dynamic(
 );
 
 export default function RoutesPage() {
-  const [points, setPoints] = useState<
-    [number, number][]
-  >([]);
+
+  const [employees, setEmployees] =
+    useState<any[]>([]);
+
+  const [employeeId, setEmployeeId] =
+    useState("");
+
+  const [points, setPoints] =
+    useState<
+      [number, number][]
+    >([]);
 
   const [stats, setStats] =
     useState({
@@ -24,91 +32,208 @@ export default function RoutesPage() {
     });
 
   useEffect(() => {
-    loadRoute();
+    loadEmployees();
   }, []);
 
-  const loadRoute = async () => {
-    try {
-      const res = await axios.get(
-        "/api/location/replay"
-      );
+  const loadEmployees =
+    async () => {
 
-      const logs = res.data.logs;
+      try {
 
-      const routePoints = logs.map(
-        (log: any) => [
-          log.latitude,
-          log.longitude,
-        ]
-      );
+        const res =
+          await axios.get(
+            "/api/employees"
+          );
 
-      setPoints(routePoints);
+        setEmployees(
+          res.data.employees
+        );
 
-      if (logs.length > 0) {
-        setStats({
-          totalPoints: logs.length,
-
-          startPoint: `${logs[0].latitude.toFixed(
-            4
-          )}, ${logs[0].longitude.toFixed(
-            4
-          )}`,
-
-          endPoint: `${logs[
-            logs.length - 1
-          ].latitude.toFixed(
-            4
-          )}, ${logs[
-            logs.length - 1
-          ].longitude.toFixed(4)}`,
-        });
+      } catch (error) {
+        console.error(error);
       }
-    } catch (error) {
-      console.error(error);
-    }
-  };
+    };
+
+  const loadRoute =
+    async () => {
+
+      try {
+
+        const res =
+          await axios.get(
+            `/api/location/replay?employeeId=${employeeId}`
+          );
+
+        const logs =
+          res.data.logs;
+
+        const routePoints =
+          logs.map(
+            (log: any) => [
+              log.latitude,
+              log.longitude,
+            ]
+          );
+
+        setPoints(
+          routePoints
+        );
+
+        if (
+          logs.length > 0
+        ) {
+
+          setStats({
+            totalPoints:
+              logs.length,
+
+            startPoint:
+              `${logs[0].latitude.toFixed(
+                5
+              )}, ${logs[0].longitude.toFixed(
+                5
+              )}`,
+
+            endPoint:
+              `${logs[
+                logs.length - 1
+              ].latitude.toFixed(
+                5
+              )}, ${logs[
+                logs.length - 1
+              ].longitude.toFixed(
+                5
+              )}`,
+          });
+
+        } else {
+
+          setStats({
+            totalPoints: 0,
+            startPoint: "",
+            endPoint: "",
+          });
+        }
+
+      } catch (error) {
+
+        console.error(
+          error
+        );
+      }
+    };
 
   return (
     <div>
+
       <h1 className="text-4xl font-bold text-[#C8102E] mb-6">
-        Route Replay
+        Route History
       </h1>
 
+      <div className="bg-white p-5 rounded-xl shadow mb-6">
+
+        <div className="grid md:grid-cols-3 gap-4">
+
+          <select
+            value={
+              employeeId
+            }
+            onChange={(
+              e
+            ) =>
+              setEmployeeId(
+                e.target.value
+              )
+            }
+            className="border p-3 rounded text-black"
+          >
+
+            <option value="">
+              Select Employee
+            </option>
+
+            {employees.map(
+              (
+                employee
+              ) => (
+                <option
+                  key={
+                    employee._id
+                  }
+                  value={
+                    employee._id
+                  }
+                >
+                  {
+                    employee.name
+                  }
+                </option>
+              )
+            )}
+
+          </select>
+
+          <button
+            onClick={
+              loadRoute
+            }
+            className="bg-[#C8102E] text-white rounded p-3"
+          >
+            Load Route
+          </button>
+
+        </div>
+
+      </div>
+
       <div className="grid md:grid-cols-3 gap-4 mb-6">
+
         <div className="bg-white p-5 rounded-xl shadow">
           <h3 className="text-black">
             GPS Points
           </h3>
 
           <p className="text-3xl font-bold text-[#C8102E]">
-            {stats.totalPoints}
+            {
+              stats.totalPoints
+            }
           </p>
         </div>
 
         <div className="bg-white p-5 rounded-xl shadow">
           <h3 className="text-black">
-            Start Location
+            Start
           </h3>
 
-          <p className="font-semibold">
-            {stats.startPoint}
+          <p className="text-black">
+            {
+              stats.startPoint
+            }
           </p>
         </div>
 
         <div className="bg-white p-5 rounded-xl shadow">
           <h3 className="text-black">
-            End Location
+            End
           </h3>
 
-          <p className="font-semibold">
-            {stats.endPoint}
+          <p className="text-black">
+            {
+              stats.endPoint
+            }
           </p>
         </div>
+
       </div>
 
       <div className="bg-white p-4 rounded-xl shadow">
-        <RouteMap points={points} />
+
+        <RouteMap
+          points={points}
+        />
+
       </div>
+
     </div>
   );
 }

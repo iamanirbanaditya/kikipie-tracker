@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import "leaflet/dist/leaflet.css";
 
 import {
@@ -15,44 +16,138 @@ export default function RouteMap({
 }: {
   points: [number, number][];
 }) {
+  const [routePoints, setRoutePoints] =
+    useState<[number, number][]>([]);
 
-  if (points.length === 0) {
+  useEffect(() => {
+    const loadRoadRoute =
+      async () => {
+
+        if (
+          points.length < 2
+        ) {
+          setRoutePoints(
+            points
+          );
+          return;
+        }
+
+        try {
+
+          const coordinates =
+            points
+              .slice(0, 100)
+              .map(
+                (p) =>
+                  `${p[1]},${p[0]}`
+              )
+              .join(";");
+
+          const response =
+            await fetch(
+              `https://router.project-osrm.org/route/v1/driving/${coordinates}?overview=full&geometries=geojson`
+            );
+
+          const data =
+            await response.json();
+
+          if (
+            data.routes &&
+            data.routes.length
+          ) {
+
+            const roadRoute =
+              data.routes[0].geometry.coordinates.map(
+                (
+                  coord: number[]
+                ) =>
+                  [
+                    coord[1],
+                    coord[0],
+                  ] as [
+                    number,
+                    number
+                  ]
+              );
+
+            setRoutePoints(
+              roadRoute
+            );
+          } else {
+            setRoutePoints(
+              points
+            );
+          }
+
+        } catch (
+          error
+        ) {
+
+          console.error(
+            error
+          );
+
+          setRoutePoints(
+            points
+          );
+        }
+      };
+
+    loadRoadRoute();
+  }, [points]);
+
+  if (
+    routePoints.length === 0
+  ) {
     return null;
   }
 
   return (
     <MapContainer
-      center={points[0]}
-      zoom={14}
+      center={
+        routePoints[0]
+      }
+      zoom={15}
       style={{
-        height: "600px",
+        height: "650px",
         width: "100%",
       }}
     >
       <TileLayer
-        attribution="OpenStreetMap"
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
       />
 
       <Polyline
-        positions={points}
+        positions={
+          routePoints
+        }
+        pathOptions={{
+          color:
+            "#C8102E",
+          weight: 6,
+        }}
       />
 
-      <Marker position={points[0]}>
+      <Marker
+        position={
+          routePoints[0]
+        }
+      >
         <Popup>
-          Start Point
+          Start Location
         </Popup>
       </Marker>
 
       <Marker
         position={
-          points[
-            points.length - 1
+          routePoints[
+            routePoints.length -
+              1
           ]
         }
       >
         <Popup>
-          End Point
+          End Location
         </Popup>
       </Marker>
 
