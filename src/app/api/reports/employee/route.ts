@@ -6,10 +6,15 @@ import {
   calculateDistance,
 } from "@/lib/calculateDistance";
 
+import {
+  detectHalts,
+} from "@/lib/detectHalts";
+
 export async function POST(
   req: NextRequest
 ) {
   try {
+
     await connectDB();
 
     const {
@@ -30,6 +35,7 @@ export async function POST(
       i < logs.length;
       i++
     ) {
+
       totalKm +=
         calculateDistance(
           logs[i - 1].latitude,
@@ -40,11 +46,47 @@ export async function POST(
         );
     }
 
+    const halts =
+      detectHalts(logs);
+
+    const totalHaltMinutes =
+      halts.reduce(
+        (
+          total,
+          halt
+        ) =>
+          total +
+          halt.duration,
+        0
+      );
+
+    const lastLocation =
+      logs.length > 0
+        ? logs[
+            logs.length - 1
+          ]
+        : null;
+
     return NextResponse.json({
       success: true,
-      totalKm,
+
+      totalKm:
+        Number(
+          totalKm.toFixed(2)
+        ),
+
       totalPoints:
         logs.length,
+
+      totalHalts:
+        halts.length,
+
+      totalHaltMinutes,
+
+      lastLocation,
+
+      halts,
+
       logs,
     });
 

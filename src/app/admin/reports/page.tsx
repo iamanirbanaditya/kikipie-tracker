@@ -117,36 +117,55 @@ export default function ReportsPage() {
         <div className="grid md:grid-cols-3 gap-6">
 
           <div className="bg-white rounded-xl shadow-lg p-6">
-            <h3 className="text-black font-bold">
+            <h3 className="font-bold text-black">
               Total KM
             </h3>
 
             <p className="text-4xl font-bold text-[#C8102E]">
-              {report.totalKm?.toFixed(
-                2
-              )}
+              {report.totalKm}
             </p>
           </div>
 
           <div className="bg-white rounded-xl shadow-lg p-6">
-            <h3 className="text-black font-bold">
+            <h3 className="font-bold text-black">
               GPS Points
             </h3>
 
             <p className="text-4xl font-bold text-[#C8102E]">
-              {
-                report.totalPoints
-              }
+              {report.totalPoints}
             </p>
           </div>
 
           <div className="bg-white rounded-xl shadow-lg p-6">
-            <h3 className="text-black font-bold">
-              Tracking Status
+            <h3 className="font-bold text-black">
+              Total Halts
             </h3>
 
-            <p className="text-2xl font-bold text-green-600">
-              Active
+            <p className="text-4xl font-bold text-[#C8102E]">
+              {report.totalHalts}
+            </p>
+          </div>
+
+          <div className="bg-white rounded-xl shadow-lg p-6">
+            <h3 className="font-bold text-black">
+              Halt Minutes
+            </h3>
+
+            <p className="text-4xl font-bold text-orange-600">
+              {report.totalHaltMinutes}
+            </p>
+          </div>
+
+          <div className="bg-white rounded-xl shadow-lg p-6 md:col-span-2">
+            <h3 className="font-bold text-black mb-2">
+              Last Known Location
+            </h3>
+
+            <p className="text-black">
+              {
+                report.lastLocation?.address ||
+                "No Address Available"
+              }
             </p>
           </div>
 
