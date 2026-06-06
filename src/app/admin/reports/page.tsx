@@ -13,6 +13,12 @@ export default function ReportsPage() {
   const [filter, setFilter] =
     useState("today");
 
+  const [startDate, setStartDate] =
+    useState("");
+
+  const [endDate, setEndDate] =
+    useState("");
+
   const [report, setReport] =
     useState<any>(null);
 
@@ -52,15 +58,39 @@ export default function ReportsPage() {
 
       try {
 
+        const payload: any = {
+          employeeId:
+            selectedEmployee,
+          filter,
+        };
+
+        if (
+          filter === "custom"
+        ) {
+
+          if (
+            !startDate ||
+            !endDate
+          ) {
+
+            alert(
+              "Select Start and End Date"
+            );
+
+            return;
+          }
+
+          payload.startDate =
+            startDate;
+
+          payload.endDate =
+            endDate;
+        }
+
         const res =
           await axios.post(
             "/api/reports/employee",
-            {
-              employeeId:
-                selectedEmployee,
-
-              filter,
-            }
+            payload
           );
 
         setReport(
@@ -99,7 +129,6 @@ export default function ReportsPage() {
             }
             className="border p-3 rounded w-80 text-black"
           >
-
             <option value="">
               Select Employee
             </option>
@@ -118,7 +147,6 @@ export default function ReportsPage() {
                 </option>
               )
             )}
-
           </select>
 
           <select
@@ -145,7 +173,42 @@ export default function ReportsPage() {
             <option value="all">
               All Time
             </option>
+
+            <option value="custom">
+              Custom Range
+            </option>
           </select>
+
+          {filter ===
+            "custom" && (
+            <>
+              <input
+                type="date"
+                value={
+                  startDate
+                }
+                onChange={(e) =>
+                  setStartDate(
+                    e.target.value
+                  )
+                }
+                className="border p-3 rounded text-black"
+              />
+
+              <input
+                type="date"
+                value={
+                  endDate
+                }
+                onChange={(e) =>
+                  setEndDate(
+                    e.target.value
+                  )
+                }
+                className="border p-3 rounded text-black"
+              />
+            </>
+          )}
 
           <button
             onClick={

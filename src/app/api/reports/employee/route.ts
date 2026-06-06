@@ -20,81 +20,70 @@ export async function POST(
     const {
       employeeId,
       filter,
+      startDate,
+      endDate,
     } = await req.json();
 
     let query: any = {
       employeeId,
     };
 
-    const now = new Date();
-
-    if (filter === "today") {
-
-      const start =
-        new Date();
-
-      start.setHours(
-        0,
-        0,
-        0,
-        0
-      );
-
-      query.createdAt = {
-        $gte: start,
-      };
-
-    } else if (
-      filter === "week"
+    if (
+      filter === "custom" &&
+      startDate &&
+      endDate
     ) {
 
-      const start =
-        new Date();
-
-      start.setDate(
-        start.getDate() - 7
-      );
-
       query.createdAt = {
-        $gte: start,
+        $gte: new Date(
+          startDate
+        ),
+        $lte: new Date(
+          endDate
+        ),
       };
-
-    } else if (
-      filter === "month"
-    ) {
-
-      const start =
-        new Date();
-
-      start.setMonth(
-        start.getMonth() - 1
-      );
-
-      query.createdAt = {
-        $gte: start,
-      };
-
-    } else if (
-      filter === "all"
-    ) {
-
-      // No date filter
 
     } else {
 
       const start =
         new Date();
 
-      start.setHours(
-        0,
-        0,
-        0,
-        0
-      );
+      if (
+        filter === "today"
+      ) {
 
-      query.createdAt = {
-        $gte: start,
-      };
+        start.setHours(
+          0,
+          0,
+          0,
+          0
+        );
+
+      } else if (
+        filter === "week"
+      ) {
+
+        start.setDate(
+          start.getDate() - 7
+        );
+
+      } else if (
+        filter === "month"
+      ) {
+
+        start.setMonth(
+          start.getMonth() - 1
+        );
+      }
+
+      if (
+        filter !== "all"
+      ) {
+
+        query.createdAt = {
+          $gte: start,
+        };
+      }
     }
 
     const logs =
@@ -145,24 +134,17 @@ export async function POST(
 
     return NextResponse.json({
       success: true,
-
       totalKm:
         Number(
           totalKm.toFixed(2)
         ),
-
       totalPoints:
         logs.length,
-
       totalHalts:
         halts.length,
-
       totalHaltMinutes,
-
       lastLocation,
-
       halts,
-
       logs,
     });
 
