@@ -6,6 +6,7 @@ export async function POST(
   req: NextRequest
 ) {
   try {
+
     await connectDB();
 
     const {
@@ -17,7 +18,7 @@ export async function POST(
 
     if (
       accuracy &&
-      accuracy > 100
+      accuracy > 50
     ) {
       return NextResponse.json({
         success: false,
@@ -66,7 +67,7 @@ export async function POST(
 
       if (
         !movedEnough &&
-        secondsPassed < 30
+        secondsPassed < 15
       ) {
         return NextResponse.json({
           success: true,
@@ -106,6 +107,7 @@ export async function POST(
         "";
 
     } catch (error) {
+
       console.error(
         "Geocoding Error:",
         error
