@@ -9,10 +9,9 @@ export default function LivePage() {
 
   const loadEmployees = async () => {
     try {
-      const res =
-        await axios.get(
-          "/api/admin/live"
-        );
+      const res = await axios.get(
+        "/api/admin/live"
+      );
 
       setEmployees(
         res.data.liveEmployees
@@ -109,31 +108,29 @@ export default function LivePage() {
 
                       <p className="text-black">
                         <strong>
-                          Latitude:
-                        </strong>{" "}
-                        {
-                          location.latitude
-                        }
+                          Address:
+                        </strong>
+                      </p>
+
+                      <p className="text-black break-words">
+                        {location.address ||
+                          "Address not available"}
                       </p>
 
                       <p className="text-black">
                         <strong>
-                          Longitude:
+                          City:
                         </strong>{" "}
-                        {
-                          location.longitude
-                        }
+                        {location.city ||
+                          "-"}
                       </p>
 
                       <p className="text-black">
                         <strong>
-                          Accuracy:
+                          State:
                         </strong>{" "}
-                        {
-                          location.accuracy ||
-                          "N/A"
-                        }{" "}
-                        meters
+                        {location.state ||
+                          "-"}
                       </p>
 
                       <p className="text-black">
@@ -147,18 +144,14 @@ export default function LivePage() {
 
                     </div>
 
-                    <div className="flex gap-3">
-
-                      <a
-                        href={`https://www.google.com/maps?q=${location.latitude},${location.longitude}`}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="bg-[#C8102E] text-white px-4 py-3 rounded-lg font-semibold"
-                      >
-                        Open Google Maps
-                      </a>
-
-                    </div>
+                    <a
+                      href={`https://www.google.com/maps?q=${location.latitude},${location.longitude}`}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-block bg-[#C8102E] text-white px-4 py-3 rounded-lg"
+                    >
+                      Open In Google Maps
+                    </a>
 
                   </>
                 ) : (
