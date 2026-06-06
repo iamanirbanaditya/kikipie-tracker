@@ -19,6 +19,9 @@ export default function RoutesPage() {
   const [employeeId, setEmployeeId] =
     useState("");
 
+  const [selectedDate, setSelectedDate] =
+    useState("");
+
   const [points, setPoints] =
     useState<
       [number, number][]
@@ -50,18 +53,32 @@ export default function RoutesPage() {
         );
 
       } catch (error) {
-        console.error(error);
+
+        console.error(
+          error
+        );
       }
     };
 
   const loadRoute =
     async () => {
 
+      if (
+        !employeeId
+      ) {
+
+        alert(
+          "Select Employee"
+        );
+
+        return;
+      }
+
       try {
 
         const res =
           await axios.get(
-            `/api/location/replay?employeeId=${employeeId}`
+            `/api/location/replay?employeeId=${employeeId}&date=${selectedDate}`
           );
 
         const logs =
@@ -69,7 +86,9 @@ export default function RoutesPage() {
 
         const routePoints =
           logs.map(
-            (log: any) => [
+            (
+              log: any
+            ) => [
               log.latitude,
               log.longitude,
             ]
@@ -88,22 +107,22 @@ export default function RoutesPage() {
               logs.length,
 
             startPoint:
-              `${logs[0].latitude.toFixed(
-                5
-              )}, ${logs[0].longitude.toFixed(
-                5
-              )}`,
+              logs[0]
+                .address ||
+              `${logs[0].latitude}, ${logs[0].longitude}`,
 
             endPoint:
+              logs[
+                logs.length -
+                  1
+              ].address ||
               `${logs[
-                logs.length - 1
-              ].latitude.toFixed(
-                5
-              )}, ${logs[
-                logs.length - 1
-              ].longitude.toFixed(
-                5
-              )}`,
+                logs.length -
+                  1
+              ].latitude}, ${logs[
+                logs.length -
+                  1
+              ].longitude}`,
           });
 
         } else {
@@ -132,7 +151,7 @@ export default function RoutesPage() {
 
       <div className="bg-white p-5 rounded-xl shadow mb-6">
 
-        <div className="grid md:grid-cols-3 gap-4">
+        <div className="grid md:grid-cols-4 gap-4">
 
           <select
             value={
@@ -173,6 +192,21 @@ export default function RoutesPage() {
 
           </select>
 
+          <input
+            type="date"
+            value={
+              selectedDate
+            }
+            onChange={(
+              e
+            ) =>
+              setSelectedDate(
+                e.target.value
+              )
+            }
+            className="border p-3 rounded text-black"
+          />
+
           <button
             onClick={
               loadRoute
@@ -189,6 +223,7 @@ export default function RoutesPage() {
       <div className="grid md:grid-cols-3 gap-4 mb-6">
 
         <div className="bg-white p-5 rounded-xl shadow">
+
           <h3 className="text-black">
             GPS Points
           </h3>
@@ -198,30 +233,35 @@ export default function RoutesPage() {
               stats.totalPoints
             }
           </p>
+
         </div>
 
         <div className="bg-white p-5 rounded-xl shadow">
+
           <h3 className="text-black">
-            Start
+            Start Location
           </h3>
 
-          <p className="text-black">
+          <p className="text-black break-words">
             {
               stats.startPoint
             }
           </p>
+
         </div>
 
         <div className="bg-white p-5 rounded-xl shadow">
+
           <h3 className="text-black">
-            End
+            End Location
           </h3>
 
-          <p className="text-black">
+          <p className="text-black break-words">
             {
               stats.endPoint
             }
           </p>
+
         </div>
 
       </div>

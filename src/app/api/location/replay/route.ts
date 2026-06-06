@@ -17,11 +17,45 @@ export async function GET(
         "employeeId"
       );
 
-    let query: any = {};
+    const date =
+      searchParams.get(
+        "date"
+      );
+
+    const query: any = {};
 
     if (employeeId) {
+
       query.employeeId =
         employeeId;
+    }
+
+    if (date) {
+
+      const startDate =
+        new Date(date);
+
+      startDate.setHours(
+        0,
+        0,
+        0,
+        0
+      );
+
+      const endDate =
+        new Date(date);
+
+      endDate.setHours(
+        23,
+        59,
+        59,
+        999
+      );
+
+      query.createdAt = {
+        $gte: startDate,
+        $lte: endDate,
+      };
     }
 
     const logs =
