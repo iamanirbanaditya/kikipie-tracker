@@ -1,14 +1,12 @@
 import { NextResponse } from "next/server";
 import connectDB from "@/lib/mongodb";
+
+import User from "@/models/User";
 import LocationLog from "@/models/LocationLog";
 
 import {
   calculateDistance,
 } from "@/lib/calculateDistance";
-
-import {
-  detectHalts,
-} from "@/lib/detectHalts";
 
 export async function GET() {
 
@@ -16,41 +14,114 @@ export async function GET() {
 
     await connectDB();
 
-    const logs =
-      await LocationLog.find()
-        .sort({
-          createdAt: 1,
-        });
+    const employees =
+      await User.find({
+        role: "employee",
+      });
 
-    let totalKm = 0;
+    const summary =
+      await Promise.all(
 
-    for (
-      let i = 1;
-      i < logs.length;
-      i++
-    ) {
+        employees.map(
+          async (
+            employee
+          ) => {
 
-      totalKm +=
-        calculateDistance(
-          logs[i - 1].latitude,
-          logs[i - 1].longitude,
-          logs[i].latitude,
-          logs[i].longitude
-        );
-    }
+            const logs =
+              await LocationLog.find({
+                employeeId:
+                  employee._id,
+              }).sort({
+                createdAt: 1,
+              });
 
-    const halts =
-      detectHalts(logs);
+            let totalKm = 0;
+
+            for (
+              let i = 1;
+              i < logs.length;
+              i++
+            ) {
+
+              totalKm +=
+                calculateDistance(
+                  logs[
+                    i - 1
+                  ].latitude,
+
+                  logs[
+                    i - 1
+                  ].longitude,
+
+                  logs[
+                    i
+                  ].latitude,
+
+                  logs[
+                    i
+                  ].longitude
+                );
+            }
+
+            return {
+
+              employeeId:
+                employee._id,
+
+              name:
+                employee.name,
+
+              email:
+                employee.email,
+
+              totalKm:
+                Number(
+                  totalKm.toFixed(
+                    2
+                  )
+                ),
+
+              totalPoints:
+                logs.length,
+
+              lastLocation:
+                logs.length
+                  ? logs[
+                      logs.length -
+                        1
+                    ]
+                  : null,
+            };
+          }
+        )
+      );
+
+    const companyKm =
+      summary.reduce(
+        (
+          total,
+          emp
+        ) =>
+          total +
+          emp.totalKm,
+        0
+      );
 
     return NextResponse.json({
       success: true,
-      totalKm:
+
+      companyKm:
         Number(
-          totalKm.toFixed(2)
+          companyKm.toFixed(
+            2
+          )
         ),
-      totalHalts:
-        halts.length,
-      halts,
+
+      totalEmployees:
+        employees.length,
+
+      employees:
+        summary,
     });
 
   } catch (error) {
