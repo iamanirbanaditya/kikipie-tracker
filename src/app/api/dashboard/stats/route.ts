@@ -7,6 +7,7 @@ import LocationLog from "@/models/LocationLog";
 
 export async function GET() {
   try {
+
     await connectDB();
 
     const totalEmployees =
@@ -20,6 +21,25 @@ export async function GET() {
     const totalLocations =
       await LocationLog.countDocuments();
 
+    const attendances =
+      await Attendance.find();
+
+    let totalKm = 0;
+
+    attendances.forEach(
+      (attendance) => {
+        totalKm +=
+          attendance.totalKm || 0;
+      }
+    );
+
+    const activeEmployees =
+      await Attendance.countDocuments({
+        logoutTime: {
+          $exists: false,
+        },
+      });
+
     return NextResponse.json({
       success: true,
 
@@ -28,6 +48,12 @@ export async function GET() {
       totalAttendance,
 
       totalLocations,
+
+      totalKm: Number(
+        totalKm.toFixed(2)
+      ),
+
+      activeEmployees,
     });
 
   } catch (error) {

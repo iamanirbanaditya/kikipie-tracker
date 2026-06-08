@@ -35,15 +35,11 @@ export default function LivePage() {
   }, []);
 
   const isOnline = (
-    date: string
+    attendance: any
   ) => {
-    const diff =
-      Date.now() -
-      new Date(date).getTime();
-
     return (
-      diff <
-      5 * 60 * 1000
+      attendance &&
+      !attendance.logoutTime
     );
   };
 
@@ -88,7 +84,7 @@ export default function LivePage() {
 
                   {location &&
                   isOnline(
-                    location.createdAt
+                    item.attendance
                   ) ? (
                     <span className="bg-green-100 text-green-700 px-4 py-2 rounded-full font-bold">
                       ONLINE
