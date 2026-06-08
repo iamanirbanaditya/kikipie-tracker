@@ -1,12 +1,16 @@
-import { NextRequest, NextResponse } from "next/server";
+import {
+  NextRequest,
+  NextResponse,
+} from "next/server";
+
 import connectDB from "@/lib/mongodb";
 import LocationLog from "@/models/LocationLog";
+import Attendance from "@/models/Attendance";
 
 export async function GET(
   req: NextRequest
 ) {
   try {
-
     await connectDB();
 
     const searchParams =
@@ -22,16 +26,20 @@ export async function GET(
         "date"
       );
 
-    const query: any = {};
-
-    if (employeeId) {
-
-      query.employeeId =
-        employeeId;
+    if (!employeeId) {
+      return NextResponse.json({
+        success: false,
+        message:
+          "Employee Required",
+      });
     }
 
-    if (date) {
+    let attendanceQuery: any =
+      {
+        employeeId,
+      };
 
+    if (date) {
       const startDate =
         new Date(date);
 
@@ -52,16 +60,34 @@ export async function GET(
         999
       );
 
-      query.createdAt = {
-        $gte: startDate,
-        $lte: endDate,
-      };
+      attendanceQuery.createdAt =
+        {
+          $gte:
+            startDate,
+          $lte:
+            endDate,
+        };
+    }
+
+    const attendance =
+      await Attendance.findOne(
+        attendanceQuery
+      ).sort({
+        createdAt: -1,
+      });
+
+    if (!attendance) {
+      return NextResponse.json({
+        success: true,
+        logs: [],
+      });
     }
 
     const logs =
-      await LocationLog.find(
-        query
-      ).sort({
+      await LocationLog.find({
+        attendanceId:
+          attendance._id,
+      }).sort({
         createdAt: 1,
       });
 
@@ -69,9 +95,7 @@ export async function GET(
       success: true,
       logs,
     });
-
   } catch (error) {
-
     return NextResponse.json({
       success: false,
       error,
