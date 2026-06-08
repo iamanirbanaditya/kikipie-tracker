@@ -96,9 +96,12 @@ export default function EmployeeDashboard() {
             );
 
             try {
+
               await axios.post(
                 "/api/location/update",
                 {
+                  attendanceId: id,
+
                   employeeId:
                     employee._id,
 
@@ -111,13 +114,16 @@ export default function EmployeeDashboard() {
                   accuracy,
                 }
               );
+
             } catch (error) {
+
               console.error(
                 error
               );
             }
           },
           (error) => {
+
             console.error(
               error
             );
@@ -205,15 +211,11 @@ export default function EmployeeDashboard() {
             <div className="mb-6 text-center">
 
               <h2 className="text-2xl font-bold text-black">
-                {
-                  employee.name
-                }
+                {employee.name}
               </h2>
 
               <p className="text-black">
-                {
-                  employee.email
-                }
+                {employee.email}
               </p>
 
             </div>

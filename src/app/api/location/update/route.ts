@@ -10,6 +10,7 @@ export async function POST(
     await connectDB();
 
     const {
+      attendanceId,
       employeeId,
       latitude,
       longitude,
@@ -29,7 +30,7 @@ export async function POST(
 
     const lastLog =
       await LocationLog.findOne({
-        employeeId,
+        attendanceId,
       }).sort({
         createdAt: -1,
       });
@@ -116,6 +117,7 @@ export async function POST(
 
     const location =
       await LocationLog.create({
+        attendanceId,
         employeeId,
         latitude,
         longitude,

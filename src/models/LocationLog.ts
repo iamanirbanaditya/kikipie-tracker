@@ -2,6 +2,12 @@ import mongoose, { Schema } from "mongoose";
 
 const LocationLogSchema = new Schema(
   {
+    attendanceId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Attendance",
+      required: true,
+    },
+
     employeeId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
