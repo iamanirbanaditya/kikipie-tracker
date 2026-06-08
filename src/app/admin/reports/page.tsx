@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 import axios from "axios";
+import * as XLSX from "xlsx";
+import { saveAs } from "file-saver";
 
 export default function ReportsPage() {
   const [employees, setEmployees] =
@@ -29,7 +31,6 @@ export default function ReportsPage() {
   const loadEmployees =
     async () => {
       try {
-
         const res =
           await axios.get(
             "/api/employees/list"
@@ -38,7 +39,6 @@ export default function ReportsPage() {
         setEmployees(
           res.data.employees
         );
-
       } catch (error) {
         console.error(error);
       }
@@ -105,6 +105,142 @@ export default function ReportsPage() {
       }
     };
 
+  const exportAllEmployees =
+    async () => {
+
+      try {
+
+        const res =
+          await axios.post(
+            "/api/reports/export",
+            {
+              filter,
+              startDate,
+              endDate,
+            }
+          );
+
+        const worksheet =
+          XLSX.utils.json_to_sheet(
+            res.data.reportData
+          );
+
+        const workbook =
+          XLSX.utils.book_new();
+
+        XLSX.utils.book_append_sheet(
+          workbook,
+          worksheet,
+          "TA Report"
+        );
+
+        const excelBuffer =
+          XLSX.write(
+            workbook,
+            {
+              bookType:
+                "xlsx",
+              type:
+                "array",
+            }
+          );
+
+        const file =
+          new Blob(
+            [excelBuffer],
+            {
+              type:
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            }
+          );
+
+        saveAs(
+          file,
+          `TA_Report_${filter}.xlsx`
+        );
+
+      } catch (error) {
+
+        console.error(
+          error
+        );
+      }
+    };
+
+  const exportEmployeeReport =
+    () => {
+
+      if (!report)
+        return;
+
+      const employee =
+        employees.find(
+          (e) =>
+            e._id ===
+            selectedEmployee
+        );
+
+      const data = [
+        {
+          Employee:
+            employee?.name ||
+            "",
+          TotalKM:
+            report.totalKm,
+          GPSPoints:
+            report.totalPoints,
+          TotalHalts:
+            report.totalHalts,
+          HaltMinutes:
+            report.totalHaltMinutes,
+          LastLocation:
+            report
+              .lastLocation
+              ?.address ||
+            "",
+        },
+      ];
+
+      const worksheet =
+        XLSX.utils.json_to_sheet(
+          data
+        );
+
+      const workbook =
+        XLSX.utils.book_new();
+
+      XLSX.utils.book_append_sheet(
+        workbook,
+        worksheet,
+        "Employee Report"
+      );
+
+      const excelBuffer =
+        XLSX.write(
+          workbook,
+          {
+            bookType:
+              "xlsx",
+            type:
+              "array",
+          }
+        );
+
+      const file =
+        new Blob(
+          [excelBuffer],
+          {
+            type:
+              "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+          }
+        );
+
+      saveAs(
+        file,
+        `${employee?.name}_Report.xlsx`
+      );
+    };
+
   return (
     <div>
 
@@ -121,7 +257,9 @@ export default function ReportsPage() {
         <div className="flex flex-wrap gap-4">
 
           <select
-            value={selectedEmployee}
+            value={
+              selectedEmployee
+            }
             onChange={(e) =>
               setSelectedEmployee(
                 e.target.value
@@ -134,7 +272,9 @@ export default function ReportsPage() {
             </option>
 
             {employees.map(
-              (employee) => (
+              (
+                employee
+              ) => (
                 <option
                   key={
                     employee._id
@@ -143,7 +283,9 @@ export default function ReportsPage() {
                     employee._id
                   }
                 >
-                  {employee.name}
+                  {
+                    employee.name
+                  }
                 </option>
               )
             )}
@@ -219,6 +361,26 @@ export default function ReportsPage() {
             Generate
           </button>
 
+          <button
+            onClick={
+              exportAllEmployees
+            }
+            className="bg-green-600 text-white px-6 py-3 rounded"
+          >
+            Export All Employees
+          </button>
+
+          {report && (
+            <button
+              onClick={
+                exportEmployeeReport
+              }
+              className="bg-blue-600 text-white px-6 py-3 rounded"
+            >
+              Export Employee
+            </button>
+          )}
+
         </div>
 
       </div>
@@ -274,7 +436,8 @@ export default function ReportsPage() {
 
             <p className="text-black break-words">
               {
-                report.lastLocation?.address ||
+                report.lastLocation
+                  ?.address ||
                 "No Address Available"
               }
             </p>
