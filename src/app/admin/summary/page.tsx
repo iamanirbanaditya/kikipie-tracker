@@ -40,7 +40,7 @@ export default function SummaryPage() {
     <div>
 
       <h1 className="text-4xl font-bold text-[#C8102E] mb-8">
-        Company Travel Summary
+        Company Summary
       </h1>
 
       {data && (
@@ -56,9 +56,7 @@ export default function SummaryPage() {
               </h3>
 
               <p className="text-4xl font-bold text-[#C8102E]">
-                {
-                  data.totalEmployees
-                }
+                {data.totalEmployees}
               </p>
 
             </div>
@@ -70,9 +68,7 @@ export default function SummaryPage() {
               </h3>
 
               <p className="text-4xl font-bold text-green-600">
-                {
-                  data.companyKm
-                }
+                {data.companyKm}
               </p>
 
             </div>
@@ -89,6 +85,22 @@ export default function SummaryPage() {
 
                   <th className="p-4 text-left">
                     Employee
+                  </th>
+
+                  <th className="p-4 text-left">
+                    Present
+                  </th>
+
+                  <th className="p-4 text-left">
+                    Approved
+                  </th>
+
+                  <th className="p-4 text-left">
+                    Rejected
+                  </th>
+
+                  <th className="p-4 text-left">
+                    Attendance %
                   </th>
 
                   <th className="p-4 text-left">
@@ -121,33 +133,41 @@ export default function SummaryPage() {
                       className="border-b"
                     >
 
+                      <td className="p-4 font-semibold">
+                        {employee.name}
+                      </td>
+
                       <td className="p-4">
-                        {
-                          employee.name
-                        }
+                        {employee.presentDays}
+                      </td>
+
+                      <td className="p-4 text-green-600 font-bold">
+                        {employee.approvedDays}
+                      </td>
+
+                      <td className="p-4 text-red-600 font-bold">
+                        {employee.rejectedDays}
                       </td>
 
                       <td className="p-4 font-bold">
-                        {
-                          employee.totalKm
-                        }
+                        {employee.attendancePercent}%
+                      </td>
+
+                      <td className="p-4 font-bold">
+                        {employee.totalKm}
                       </td>
 
                       <td className="p-4">
-                        {
-                          employee.totalPoints
-                        }
+                        {employee.totalPoints}
                       </td>
 
-                      <td className="p-4">
-
+                      <td className="p-4 max-w-md break-words">
                         {
                           employee
                             .lastLocation
                             ?.address ||
                           "No Location"
                         }
-
                       </td>
 
                     </tr>

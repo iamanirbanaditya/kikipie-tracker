@@ -11,6 +11,7 @@ export async function GET(
   req: NextRequest
 ) {
   try {
+
     await connectDB();
 
     const searchParams =
@@ -27,6 +28,7 @@ export async function GET(
       );
 
     if (!employeeId) {
+
       return NextResponse.json({
         success: false,
         message:
@@ -40,6 +42,7 @@ export async function GET(
       };
 
     if (date) {
+
       const startDate =
         new Date(date);
 
@@ -77,9 +80,11 @@ export async function GET(
       });
 
     if (!attendance) {
+
       return NextResponse.json({
         success: true,
         logs: [],
+        attendance: null,
       });
     }
 
@@ -94,8 +99,20 @@ export async function GET(
     return NextResponse.json({
       success: true,
       logs,
+      attendance: {
+        loginTime:
+          attendance.loginTime,
+        logoutTime:
+          attendance.logoutTime,
+        totalKm:
+          attendance.totalKm,
+        status:
+          attendance.status,
+      },
     });
+
   } catch (error) {
+
     return NextResponse.json({
       success: false,
       error,

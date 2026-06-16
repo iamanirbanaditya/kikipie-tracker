@@ -22,6 +22,9 @@ export default function RoutesPage() {
   const [selectedDate, setSelectedDate] =
     useState("");
 
+  const [attendanceInfo, setAttendanceInfo] =
+    useState<any>(null);
+
   const [points, setPoints] =
     useState<
       [number, number][]
@@ -84,6 +87,10 @@ export default function RoutesPage() {
         const logs =
           res.data.logs;
 
+        setAttendanceInfo(
+          res.data.attendance
+        );
+
         const routePoints =
           logs.map(
             (
@@ -113,15 +120,12 @@ export default function RoutesPage() {
 
             endPoint:
               logs[
-                logs.length -
-                  1
+                logs.length - 1
               ].address ||
               `${logs[
-                logs.length -
-                  1
+                logs.length - 1
               ].latitude}, ${logs[
-                logs.length -
-                  1
+                logs.length - 1
               ].longitude}`,
           });
 
@@ -157,9 +161,7 @@ export default function RoutesPage() {
             value={
               employeeId
             }
-            onChange={(
-              e
-            ) =>
+            onChange={(e) =>
               setEmployeeId(
                 e.target.value
               )
@@ -197,9 +199,7 @@ export default function RoutesPage() {
             value={
               selectedDate
             }
-            onChange={(
-              e
-            ) =>
+            onChange={(e) =>
               setSelectedDate(
                 e.target.value
               )
@@ -219,6 +219,70 @@ export default function RoutesPage() {
         </div>
 
       </div>
+
+      {attendanceInfo && (
+
+        <div className="grid md:grid-cols-4 gap-4 mb-6">
+
+          <div className="bg-white p-5 rounded-xl shadow">
+            <h3 className="text-black">
+              Check In
+            </h3>
+
+            <p className="font-bold text-[#C8102E]">
+              {
+                attendanceInfo.loginTime
+                  ? new Date(
+                      attendanceInfo.loginTime
+                    ).toLocaleTimeString()
+                  : "-"
+              }
+            </p>
+          </div>
+
+          <div className="bg-white p-5 rounded-xl shadow">
+            <h3 className="text-black">
+              Check Out
+            </h3>
+
+            <p className="font-bold text-[#C8102E]">
+              {
+                attendanceInfo.logoutTime
+                  ? new Date(
+                      attendanceInfo.logoutTime
+                    ).toLocaleTimeString()
+                  : "-"
+              }
+            </p>
+          </div>
+
+          <div className="bg-white p-5 rounded-xl shadow">
+            <h3 className="text-black">
+              Total KM
+            </h3>
+
+            <p className="font-bold text-[#C8102E]">
+              {
+                attendanceInfo.totalKm || 0
+              } KM
+            </p>
+          </div>
+
+          <div className="bg-white p-5 rounded-xl shadow">
+            <h3 className="text-black">
+              Status
+            </h3>
+
+            <p className="font-bold text-[#C8102E]">
+              {
+                attendanceInfo.status || "-"
+              }
+            </p>
+          </div>
+
+        </div>
+
+      )}
 
       <div className="grid md:grid-cols-3 gap-4 mb-6">
 

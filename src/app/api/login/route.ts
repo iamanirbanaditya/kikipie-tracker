@@ -7,6 +7,7 @@ export async function POST(
   req: NextRequest
 ) {
   try {
+
     await connectDB();
 
     const {
@@ -20,13 +21,33 @@ export async function POST(
       });
 
     if (!user) {
+
       return NextResponse.json(
         {
           success: false,
           message:
             "User not found",
         },
-        { status: 404 }
+        {
+          status: 404,
+        }
+      );
+    }
+
+    if (
+      user.status ===
+      "inactive"
+    ) {
+
+      return NextResponse.json(
+        {
+          success: false,
+          message:
+            "Account is deactivated. Contact administrator.",
+        },
+        {
+          status: 403,
+        }
       );
     }
 
@@ -36,14 +57,19 @@ export async function POST(
         user.password
       );
 
-    if (!validPassword) {
+    if (
+      !validPassword
+    ) {
+
       return NextResponse.json(
         {
           success: false,
           message:
             "Invalid password",
         },
-        { status: 401 }
+        {
+          status: 401,
+        }
       );
     }
 
@@ -64,12 +90,16 @@ export async function POST(
         sameSite: "lax",
         path: "/",
         maxAge:
-          60 * 60 * 24,
+          60 *
+          60 *
+          24,
       }
     );
 
     return response;
+
   } catch (error) {
+
     return NextResponse.json(
       {
         success: false,
@@ -77,7 +107,9 @@ export async function POST(
           "Server Error",
         error,
       },
-      { status: 500 }
+      {
+        status: 500,
+      }
     );
   }
 }

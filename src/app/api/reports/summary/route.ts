@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import connectDB from "@/lib/mongodb";
 
 import User from "@/models/User";
+import Attendance from "@/models/Attendance";
 import LocationLog from "@/models/LocationLog";
 
 import {
@@ -35,6 +36,12 @@ export async function GET() {
                 createdAt: 1,
               });
 
+            const attendance =
+              await Attendance.find({
+                employeeId:
+                  employee._id,
+              });
+
             let totalKm = 0;
 
             for (
@@ -45,23 +52,38 @@ export async function GET() {
 
               totalKm +=
                 calculateDistance(
-                  logs[
-                    i - 1
-                  ].latitude,
-
-                  logs[
-                    i - 1
-                  ].longitude,
-
-                  logs[
-                    i
-                  ].latitude,
-
-                  logs[
-                    i
-                  ].longitude
+                  logs[i - 1].latitude,
+                  logs[i - 1].longitude,
+                  logs[i].latitude,
+                  logs[i].longitude
                 );
             }
+
+            const presentDays =
+              attendance.length;
+
+            const approvedDays =
+              attendance.filter(
+                (a) =>
+                  a.status ===
+                  "Approved"
+              ).length;
+
+            const rejectedDays =
+              attendance.filter(
+                (a) =>
+                  a.status ===
+                  "Rejected"
+              ).length;
+
+            const attendancePercent =
+              presentDays > 0
+                ? (
+                    (approvedDays /
+                      presentDays) *
+                    100
+                  ).toFixed(0)
+                : "0";
 
             return {
 
@@ -83,6 +105,14 @@ export async function GET() {
 
               totalPoints:
                 logs.length,
+
+              presentDays,
+
+              approvedDays,
+
+              rejectedDays,
+
+              attendancePercent,
 
               lastLocation:
                 logs.length

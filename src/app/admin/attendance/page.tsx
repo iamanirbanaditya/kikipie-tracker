@@ -49,6 +49,7 @@ export default function AttendancePage() {
 
   return (
     <div>
+
       <h1 className="text-4xl font-bold text-[#C8102E] mb-8">
         Attendance Management
       </h1>
@@ -60,6 +61,7 @@ export default function AttendancePage() {
           <thead className="bg-[#C8102E] text-white">
 
             <tr>
+
               <th className="p-4 text-left">
                 Employee
               </th>
@@ -69,12 +71,25 @@ export default function AttendancePage() {
               </th>
 
               <th className="p-4 text-left">
+                Check In
+              </th>
+
+              <th className="p-4 text-left">
+                Check Out
+              </th>
+
+              <th className="p-4 text-left">
+                KM
+              </th>
+
+              <th className="p-4 text-left">
                 Status
               </th>
 
               <th className="p-4 text-left">
                 Actions
               </th>
+
             </tr>
 
           </thead>
@@ -98,6 +113,42 @@ export default function AttendancePage() {
 
                 <td className="p-4">
 
+                  {item.loginTime
+                    ? new Date(
+                        item.loginTime
+                      ).toLocaleTimeString(
+                        "en-IN",
+                        {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        }
+                      )
+                    : "-"}
+
+                </td>
+
+                <td className="p-4">
+
+                  {item.logoutTime
+                    ? new Date(
+                        item.logoutTime
+                      ).toLocaleTimeString(
+                        "en-IN",
+                        {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        }
+                      )
+                    : "-"}
+
+                </td>
+
+                <td className="p-4 font-bold">
+                  {item.totalKm || 0} KM
+                </td>
+
+                <td className="p-4">
+
                   <span
                     className={`px-3 py-1 rounded-full text-sm font-bold ${
                       item.status ===
@@ -116,23 +167,36 @@ export default function AttendancePage() {
 
                 <td className="p-4 flex gap-2">
 
-                  <button
-                    onClick={() =>
-                      approve(item._id)
-                    }
-                    className="bg-green-600 text-white px-4 py-2 rounded"
-                  >
-                    Approve
-                  </button>
+                  {item.status ===
+                  "Pending" ? (
+                    <>
+                      <button
+                        onClick={() =>
+                          approve(
+                            item._id
+                          )
+                        }
+                        className="bg-green-600 text-white px-4 py-2 rounded"
+                      >
+                        Approve
+                      </button>
 
-                  <button
-                    onClick={() =>
-                      reject(item._id)
-                    }
-                    className="bg-red-600 text-white px-4 py-2 rounded"
-                  >
-                    Reject
-                  </button>
+                      <button
+                        onClick={() =>
+                          reject(
+                            item._id
+                          )
+                        }
+                        className="bg-red-600 text-white px-4 py-2 rounded"
+                      >
+                        Reject
+                      </button>
+                    </>
+                  ) : (
+                    <span className="text-gray-500">
+                      Completed
+                    </span>
+                  )}
 
                 </td>
 
@@ -145,6 +209,7 @@ export default function AttendancePage() {
         </table>
 
       </div>
+
     </div>
   );
 }
