@@ -15,6 +15,7 @@ export async function POST(
   req: NextRequest
 ) {
   try {
+
     await connectDB();
 
     const {
@@ -24,50 +25,60 @@ export async function POST(
       endDate,
     } = await req.json();
 
-    let attendanceQuery: any = {
-      employeeId,
-    };
+    let attendanceQuery: any =
+      {
+        employeeId,
+      };
+
+    const today =
+      new Date()
+        .toLocaleDateString(
+          "en-CA",
+          {
+            timeZone:
+              "Asia/Kolkata",
+          }
+        );
 
     if (
-      filter === "custom" &&
+      filter ===
+        "custom" &&
       startDate &&
       endDate
     ) {
-      attendanceQuery.createdAt = {
-        $gte: new Date(startDate),
-        $lte: new Date(endDate),
-      };
-    } else {
-      const start = new Date();
 
-      if (filter === "today") {
-        start.setHours(
-          0,
-          0,
-          0,
-          0
-        );
-      } else if (
-        filter === "week"
-      ) {
-        start.setDate(
-          start.getDate() - 7
-        );
-      } else if (
-        filter === "month"
-      ) {
-        start.setMonth(
-          start.getMonth() - 1
-        );
-      }
-
-      if (
-        filter !== "all"
-      ) {
-        attendanceQuery.createdAt = {
-          $gte: start,
+      attendanceQuery.date =
+        {
+          $gte:
+            startDate,
+          $lte:
+            endDate,
         };
-      }
+
+    } else if (
+      filter ===
+      "today"
+    ) {
+
+      attendanceQuery.date =
+        today;
+
+    } else if (
+      filter ===
+      "month"
+    ) {
+
+      const currentMonth =
+        today.substring(
+          0,
+          7
+        );
+
+      attendanceQuery.date =
+        {
+          $regex:
+            `^${currentMonth}`,
+        };
     }
 
     const attendances =
@@ -82,9 +93,11 @@ export async function POST(
 
     const logs =
       await LocationLog.find({
-        attendanceId: {
-          $in: attendanceIds,
-        },
+        attendanceId:
+          {
+            $in:
+              attendanceIds,
+          },
       }).sort({
         createdAt: 1,
       });
@@ -96,13 +109,16 @@ export async function POST(
       i < logs.length;
       i++
     ) {
+
       if (
         String(
           logs[i]
             .attendanceId
         ) !==
         String(
-          logs[i - 1]
+          logs[
+            i - 1
+          ]
             .attendanceId
         )
       ) {
@@ -111,10 +127,12 @@ export async function POST(
 
       totalKm +=
         calculateDistance(
-          logs[i - 1]
-            .latitude,
-          logs[i - 1]
-            .longitude,
+          logs[
+            i - 1
+          ].latitude,
+          logs[
+            i - 1
+          ].longitude,
           logs[i]
             .latitude,
           logs[i]
@@ -123,7 +141,9 @@ export async function POST(
     }
 
     const halts =
-      detectHalts(logs);
+      detectHalts(
+        logs
+      );
 
     const totalHaltMinutes =
       halts.reduce(
@@ -139,27 +159,41 @@ export async function POST(
     const lastLocation =
       logs.length > 0
         ? logs[
-            logs.length - 1
+            logs.length -
+              1
           ]
         : null;
 
     return NextResponse.json({
       success: true,
-      totalKm: Number(
-        totalKm.toFixed(2)
-      ),
+
+      totalKm:
+        Number(
+          totalKm.toFixed(
+            2
+          )
+        ),
+
       totalPoints:
         logs.length,
+
       totalHalts:
         halts.length,
+
       totalHaltMinutes,
+
       lastLocation,
+
       halts,
+
       logs,
+
       totalSessions:
         attendances.length,
     });
+
   } catch (error) {
+
     return NextResponse.json({
       success: false,
       error,

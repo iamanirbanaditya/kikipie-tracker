@@ -11,6 +11,7 @@ export async function POST(
   req: NextRequest
 ) {
   try {
+
     await connectDB();
 
     const {
@@ -31,12 +32,15 @@ export async function POST(
       i < logs.length;
       i++
     ) {
+
       totalKm +=
         calculateDistance(
-          logs[i - 1]
-            .latitude,
-          logs[i - 1]
-            .longitude,
+          logs[
+            i - 1
+          ].latitude,
+          logs[
+            i - 1
+          ].longitude,
           logs[i]
             .latitude,
           logs[i]
