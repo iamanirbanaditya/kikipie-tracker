@@ -11,15 +11,37 @@ export async function POST(
     const { employeeId } =
       await req.json();
 
+    const today =
+      new Date()
+        .toISOString()
+        .split("T")[0];
+
+    const existingAttendance =
+      await Attendance.findOne({
+        employeeId,
+        date: today,
+      });
+
+    if (
+      existingAttendance
+    ) {
+      return NextResponse.json({
+        success: true,
+        attendance:
+          existingAttendance,
+        message:
+          "Attendance already exists for today",
+      });
+    }
+
     const attendance =
       await Attendance.create({
         employeeId,
-        date:
-          new Date()
-            .toISOString()
-            .split("T")[0],
-
-        loginTime: new Date(),
+        date: today,
+        loginTime:
+          new Date(),
+        status:
+          "Pending",
       });
 
     return NextResponse.json({
@@ -28,6 +50,7 @@ export async function POST(
     });
 
   } catch (error) {
+
     return NextResponse.json({
       success: false,
       error,
