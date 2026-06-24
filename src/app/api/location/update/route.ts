@@ -19,7 +19,7 @@ export async function POST(
 
     if (
       accuracy &&
-      accuracy > 50
+      accuracy > 150
     ) {
       return NextResponse.json({
         success: false,
